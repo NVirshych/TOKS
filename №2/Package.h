@@ -6,6 +6,7 @@ class Package {
 private:
 
 	static const string flag;
+	static const string stuffed;
 
 public:
 

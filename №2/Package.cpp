@@ -1,6 +1,7 @@
 #include "Package.h"
 
 const string Package::flag = "01111110";
+const string Package::stuffed = "011111110";
 
 string Package::encode(string data) {
 
@@ -49,7 +50,6 @@ string Package::pack(string data) {
 		if (data[i++] == '1')
 			parity++;
 
-
 	if (parity % 2)
 		data += "1";
 	else
@@ -61,9 +61,9 @@ string Package::pack(string data) {
 string Package::unpack(string packedData) {
 
 	string data;
-	size_t pos = 0;
 	int i = 0;
 	int parity = 0;
+	size_t pos = 0;
 
 	if ((pos = packedData.find(Package::flag)) == -1)
 		return data;
@@ -81,7 +81,7 @@ string Package::unpack(string packedData) {
 		
 	while (1) {
 
-		if ((pos = data.find("011111110")) != -1) {
+		if ((pos = data.find(Package::stuffed)) != -1) {
 
 			data.erase(pos+7, 1);
 		}

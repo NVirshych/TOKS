@@ -130,13 +130,6 @@ void SerialPort::write(string message) {
 	int i = 0;
 	char buf;
 
-	message = Package::encode(message);
-	cout << "Encoded: " << message << endl;
-	message = Package::pack(message);
-	cout << "Packed: " << message << endl;
-	
-
-
 	//Запись 0 символа - конец работы
 	if (!message.size()) {
 
@@ -144,6 +137,11 @@ void SerialPort::write(string message) {
 		WriteFile(hPort, &buf, 1, NULL, &asynchWrite);
 		return;
 	}
+
+	message = Package::encode(message);
+	cout << "Encoded: " << message << endl;
+	message = Package::pack(message);
+	cout << "Packed: " << message << endl;
 
 	//Асинхронная запись сообщения
 	WriteFile(hPort, message.c_str(), message.size(), NULL, &asynchWrite);
@@ -175,7 +173,7 @@ string SerialPort::read() {
 			WaitForSingleObject(asynchRead.hEvent, INFINITE);		//Ожидание считывания байта данных
 
 			if (!buf)
-				break;
+				return message;
 
 			if (buf == '\n')
 				break;
