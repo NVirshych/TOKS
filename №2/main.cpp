@@ -62,14 +62,40 @@ int main(int argc, char* argv[]) {
 
 	if(!master){
 
+		char buf[10];
 		string str;
 
-		str = port.read();
+		while (1) {
 
-		if (!str.size())
-			return 0;
+			ZeroMemory(buf, 10);
 
-		cout << "Message: " << str << endl;
+			port.read(buf);
+
+			if (!buf[0])
+				return 0;
+
+			str = Package::encode(buf);
+
+			str.erase(str.size() - 8, 8);
+
+			cout << "Pack: " << str << endl;
+
+			str = Package::unpack(str);
+
+			cout << "Unpc: " << str << endl;
+
+			Package::decode(str, buf);
+
+			ZeroMemory(buf + 7, 3);
+
+			cout << "Message: " << buf << endl;
+
+			str = buf;
+
+			if (str.find("\n") != -1)
+				break;
+
+		}
 	}
 
 	chat(port);
@@ -87,26 +113,87 @@ int main(int argc, char* argv[]) {
 void chat(SerialPort port) {
 
 	string str;
+	string enc;
+	char buf[10];
 
 	while (1) {
+		str.clear();
 
 		//Ввод строки для передачи
 		cout << "Input message or press 'Enter' to exit: ";
 		getline(cin, str);
 
-		port.write(str);
-
 		//Запись 0 символа - конец работы
-		if (!str.size())
+		if (!str.size()) {
+			port.write(NULL);
 			return;
+		}
 
+		str += '\n';
+
+		while (str.size()) {
+
+			ZeroMemory(buf, 10);
+			str.copy(buf, 7, 0);
+
+			enc = Package::encode(buf);
+
+			enc.erase(enc.size() - 24, 24);
+
+			cout << "Encd: " << enc << endl;
+
+			enc = Package::pack(enc);
+
+			cout << "Pack: " << enc << endl;
+
+			Package::decode(enc, buf);
+
+			port.write(buf);	
+			
+			str.erase(0, 7);
+		}
+
+			
 		//Чтение из порта
-		str = port.read();
+		while (1) {
 
-		if (!str.size())
-			return;
+			ZeroMemory(buf, 10);
 
-		cout << "Message: " << str << endl;
+			port.read(buf);
+
+			if(!buf[0])
+				return;
+
+			cout << endl;
+
+			str = Package::encode(buf);
+
+			str.erase(str.size() - 8, 8);
+
+			cout << "Pack: " << str << endl;
+
+			str = Package::unpack(str);
+
+			if (!str.size()) {
+
+				cout << "Unpacking error" << endl;
+				break;
+			}
+
+			cout << "Unpc: " << str << endl;
+
+			Package::decode(str, buf);
+
+			ZeroMemory(buf+7, 3);
+
+			cout << "Message: " << buf << endl;
+
+			str = buf;
+
+			if (str.find("\n") != -1)
+				break;
+
+		}
 
 	}
 	

@@ -15,8 +15,8 @@ public:
 	SerialPort(string);
 
 	void changeRate();
-	void write(string);
-	string read();
+	void write(char*);
+	void read(char*);
 
 	~SerialPort();
 

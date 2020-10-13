@@ -125,40 +125,27 @@ void SerialPort::changeRate() {
 	setRate(baudRate);
 }
 
-void SerialPort::write(string message) {
+void SerialPort::write(char* message) {
 
-	int i = 0;
 	char buf;
 
 	//Запись 0 символа - конец работы
-	if (!message.size()) {
+	if (!message) {
 
 		buf = 0;
 		WriteFile(hPort, &buf, 1, NULL, &asynchWrite);
 		return;
 	}
 
-	message = Package::encode(message);
-	cout << "Encoded: " << message << endl;
-	message = Package::pack(message);
-	cout << "Packed: " << message << endl;
-
 	//Асинхронная запись сообщения
-	WriteFile(hPort, message.c_str(), message.size(), NULL, &asynchWrite);
+	WriteFile(hPort, message, 9, NULL, &asynchWrite);
 
-	//Запись \n - конец сообщения
-	buf = '\n';
-	WriteFile(hPort, &buf, 1, NULL, &asynchWrite);
 }
 
-string SerialPort::read() {
+void SerialPort::read(char* message) {
 
-	char buf;
-	string message;
-	int i = 0;
 	unsigned long state = 0;
 
-	//Чтение сообщения до 0-символа или \n
 
 	if (SetCommMask(hPort, EV_RXCHAR)) {							//Установка маски событий порта
 
@@ -168,25 +155,25 @@ string SerialPort::read() {
 
 			WaitForSingleObject(asynchRead.hEvent, INFINITE);		//Ожидание данных для считывания
 
-			ReadFile(hPort, &buf, 1, NULL, &asynchRead);
+			ReadFile(hPort, message, 1, NULL, &asynchRead);
 
 			WaitForSingleObject(asynchRead.hEvent, INFINITE);		//Ожидание считывания байта данных
 
-			if (!buf)
-				return message;
+			if (!message[0])
+				return;
 
-			if (buf == '\n')
+			if (message[0] == 126)
 				break;
-			message += buf;
 
 		} while (1);
+
+		WaitForSingleObject(asynchRead.hEvent, INFINITE);		//Ожидание данных для считывания
+
+		ReadFile(hPort, message+1, 8, NULL, &asynchRead);
+
+		WaitForSingleObject(asynchRead.hEvent, INFINITE);		//Ожидание считывания байта данных
+
 	}
-
-	cout << "Received: " << message << endl;
-	message = Package::unpack(message);
-	cout << "Unpacked: " << message << endl;
-
-	return Package::decode(message);
 }
 
 SerialPort::~SerialPort() {

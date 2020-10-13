@@ -14,7 +14,7 @@ public:
 	static string unpack(string);
 
 
-	static string encode(string);
-	static string decode(string);
+	static string encode(char*);
+	static void decode(string, char*);
 
 };

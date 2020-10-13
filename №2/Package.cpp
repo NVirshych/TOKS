@@ -3,59 +3,64 @@
 const string Package::flag = "01111110";
 const string Package::stuffed = "011111110";
 
-string Package::encode(string data) {
+string Package::encode(char* data) {
 
 	string encodedData;
-	int i = 0;
 
-	while (i < data.size())
-		encodedData += bitset<8>(data[i++]).to_string();
+	for (int i = 0; i < 10; i++)
+		encodedData += bitset<8>(data[i]).to_string();
 
 	return encodedData;
 }
 
-string Package::decode(string data) {
+void Package::decode(string data, char* ptr) {
 
 	string decodedData;
+	int i = 0;
 	char buf[9];
 
-	while (data.size()) {
+	while(data.size()) {
 	
 		data.copy(buf, 8, 0);
-		decodedData += strtol(buf, NULL, 2);
+		ptr[i] = strtol(buf, NULL, 2);
 		data.erase(0, 8);
+		i++;
 	}
-
-	return decodedData;
 }
 
 string Package::pack(string data) {
 
 	int i = 0;
 	int parity = 0;
+	int flag = 0;
 	size_t pos = 0;
 
-	while (1) {
-	
-		if ((pos = data.find(Package::flag)) != -1) {
+	//Бит-стаффинг
+	while (1) 
+		if ((pos = data.find("111111", pos)) != -1) {
 
-			pos += 7;
+			pos += 6;
 			data.insert(pos, "1");
+			flag++;
 		}
 		else
 			break;
-	}
 
-	while (i < data.size())		
+	//Контроль чётности
+	while (i < data.size())
 		if (data[i++] == '1')
 			parity++;
+
+	for (int j = 0; j < 7 - flag; j++) {
+		data += "0";
+	}
 
 	if (parity % 2)
 		data += "1";
 	else
 		data += "0";
 
-	return Package::flag + data;
+	return "01111110" + data;
 }
 
 string Package::unpack(string packedData) {
@@ -65,11 +70,9 @@ string Package::unpack(string packedData) {
 	int parity = 0;
 	size_t pos = 0;
 
-	if ((pos = packedData.find(Package::flag)) == -1)
-		return data;
+	packedData.erase(0, 8);
 
-	packedData.erase(0, pos + 8);
-
+	//Контроль чётности
 	while (i < packedData.size()) 
 		if (packedData[i++] == '1')
 			parity++;
@@ -79,15 +82,18 @@ string Package::unpack(string packedData) {
 
 	data = packedData.erase(packedData.size()-1, 1);
 		
-	while (1) {
-
-		if ((pos = data.find(Package::stuffed)) != -1) {
-
-			data.erase(pos+7, 1);
+	//Восстановление данных
+	i = 0;
+	while (1)
+		if ((pos = data.find("1111111", pos)) != -1) {
+			data.erase(pos, 1);
+			pos += 6;
+			i++;
 		}
 		else
 			break;
-	}
+
+	data.erase(data.size() - (7 - i), 7 - i);
 
 	return data;
 }
