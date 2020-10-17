@@ -35,14 +35,13 @@ int main(int argc, char* argv[]) {
 
 	//int error = atoi(argv[2]);
 	string data = argv[1];
-	string ost = "";
+	string remainder = "";
 	string zero = "";
-	string code = "";
+	string polynome = "";
 	
 	int error = 16;
 
 	int dataSize = data.size();
-
 	int crcSize = ceil(log2(data.size() + 1 + ceil(log2(data.size() + 1))));
 
 	for (int i = 0; i < crcSize; i++) {
@@ -53,11 +52,11 @@ int main(int argc, char* argv[]) {
 
 	switch (crcSize){
 		case(5):
-			code = "100101";
+			polynome = "100101";
 			break;
 
 		case(6):
-			code = "1000111";
+			polynome = "1000111";
 			break;
 
 		default:
@@ -65,18 +64,18 @@ int main(int argc, char* argv[]) {
 			return 0;
 	}
 
-	ost = div(data, code);
+	remainder = div(data, polynome);
 	data.erase(data.size() - crcSize, crcSize);
-	data += ost;
+	data += remainder;
 	   
-	string base = data;
+	string modifiedData = data;
 
-	if (base[error] == '0')
-		base[error] = '1';
+	if (modifiedData[error] == '0')
+		modifiedData[error] = '1';
 	else
-		base[error] = '0';
+		modifiedData[error] = '0';
 
-	cout << "Start : " << data << endl << "Error : " << base << endl;
+	cout << "Start : " << data << endl << "Error : " << modifiedData << endl;
 
 	for (int i = 0; i < error; i++)
 		cout << " ";
@@ -84,16 +83,16 @@ int main(int argc, char* argv[]) {
 
 	int i = -1;
 
-	base = shr(base);
+	modifiedData = shr(modifiedData);
 
-	while (count(ost, '1') != 1) {
+	while (count(remainder, '1') != 1) {
 
-		base = shl(base);
-		ost = div(base, code);
+		modifiedData = shl(modifiedData);
+		remainder = div(modifiedData, polynome);
 		i++;
-		cout << i << " shift: " << ost << endl;
+		cout << i << " shift: " << remainder << endl;
 
-		if (ost == zero) {
+		if (remainder == zero) {
 
 			cout << "No erorr" << endl;
 			return 0;
@@ -102,21 +101,21 @@ int main(int argc, char* argv[]) {
 
 	string tmp;
 
-	tmp = base.substr(base.size() - ost.size(), ost.size());
-	base.erase(base.size() - ost.size(), ost.size());
+	tmp = modifiedData.substr(modifiedData.size() - remainder.size(), remainder.size());
+	modifiedData.erase(modifiedData.size() - remainder.size(), remainder.size());
 
-	tmp = sxor(tmp, ost);
+	tmp = sxor(tmp, remainder);
 
-	base += tmp;
+	modifiedData += tmp;
 
 	while (i) {
 
-		base = shr(base);
+		modifiedData = shr(modifiedData);
 		i--;
 	}
 
 
-	cout << endl << "Start : " <<  data << endl << "Fix   : " << base << endl;
+	cout << endl << "Start : " <<  data << endl << "Fix   : " << modifiedData << endl;
 
 	for (int i = 0; i < error; i++)
 		cout << " ";
