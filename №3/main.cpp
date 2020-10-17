@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <iostream>
 #include <string>
+#include <math.h>
 
 using namespace std;
 
@@ -15,45 +16,71 @@ string delz(string);
 string sxor(string, string);
 string div(string, string);
 
-int main() {
-
-	string ost = "";
-
-	// dima 
-	// data + sum = 1001010010010010100100101010101
-	// poly = 100101
-	// Работает в любом месте
-
-	// data = 01101010101011101010101010100100
-	// data * x^6 = 01101010101011101010101010100100000000
-	// data error = 01101010101011111010101010100100
-
 	// poly = 1010101
-	// sum = 011000
 	// - 
 
 	// poly = 1000111
-	// sum = 010001
 	// -
 
 	// poly = 1100111
-	// sum = 001011
 	// -
 
 	// poly = 1000101
-	// sum = 111101
 	// - 
 
-	// data * x^7 = 011010101010111010101010101001000000000
-
 	// poly = 10001001
-	// sum = 1111000
 	// -
 
-	string base = "101010010101101011011011010110111111";
-	string code = "1000011";
+int main(int argc, char* argv[]) {
 
-	string bases = base;
+	//int error = atoi(argv[2]);
+	string data = argv[1];
+	string ost = "";
+	string zero = "";
+	string code = "";
+	
+	int error = 16;
+
+	int dataSize = data.size();
+
+	int crcSize = ceil(log2(data.size() + 1 + ceil(log2(data.size() + 1))));
+
+	for (int i = 0; i < crcSize; i++) {
+		
+		data += '0';
+		zero += '0';
+	}
+
+	switch (crcSize){
+		case(5):
+			code = "100101";
+			break;
+
+		case(6):
+			code = "1000111";
+			break;
+
+		default:
+			cout << "Only CRC-5 and CRC-6." << endl;
+			return 0;
+	}
+
+	ost = div(data, code);
+	data.erase(data.size() - crcSize, crcSize);
+	data += ost;
+	   
+	string base = data;
+
+	if (base[error] == '0')
+		base[error] = '1';
+	else
+		base[error] = '0';
+
+	cout << "Start : " << data << endl << "Error : " << base << endl;
+
+	for (int i = 0; i < error; i++)
+		cout << " ";
+	cout << "        -" << endl;
 
 	int i = -1;
 
@@ -66,7 +93,7 @@ int main() {
 		i++;
 		cout << i << " shift: " << ost << endl;
 
-		if (ost == "000000") {
+		if (ost == zero) {
 
 			cout << "No erorr" << endl;
 			return 0;
@@ -89,7 +116,11 @@ int main() {
 	}
 
 
-	cout << "Start : " <<  bases << endl << "Fix   : " << base << endl;
+	cout << endl << "Start : " <<  data << endl << "Fix   : " << base << endl;
+
+	for (int i = 0; i < error; i++)
+		cout << " ";
+	cout << "        -" << endl;
 	
 	return 0;
 }
