@@ -8,7 +8,6 @@ using namespace std;
 int count(string, char);
 
 string shl(string);
-string shlz(string);
 string shr(string);
 
 string delz(string);
@@ -28,21 +27,23 @@ string div(string, string);
 	// poly = 1000101
 	// - 
 
+	// poly = 1001101
+	// - 
+
 	// poly = 10001001
 	// -
 
 int main(int argc, char* argv[]) {
 
-	//int error = atoi(argv[2]);
+	int error = atoi(argv[2]);
 	string data = argv[1];
-	string remainder = "";
+	string remainder;
 	string zero = "";
-	string polynome = "";
-	
-	int error = 16;
+	string polynome;
 
-	int dataSize = data.size();
 	int crcSize = ceil(log2(data.size() + 1 + ceil(log2(data.size() + 1))));
+
+	cout << "Data  : " << data << endl;
 
 	for (int i = 0; i < crcSize; i++) {
 		
@@ -56,7 +57,7 @@ int main(int argc, char* argv[]) {
 			break;
 
 		case(6):
-			polynome = "1000111";
+			polynome = "1001101";
 			break;
 
 		default:
@@ -75,7 +76,7 @@ int main(int argc, char* argv[]) {
 	else
 		modifiedData[error] = '0';
 
-	cout << "Start : " << data << endl << "Error : " << modifiedData << endl;
+	cout << "Poly  : " << polynome << endl << "Sum   : " << remainder << endl << endl << "Start : " << data << endl << "Error : " << modifiedData << endl;
 
 	for (int i = 0; i < error; i++)
 		cout << " ";
@@ -90,7 +91,7 @@ int main(int argc, char* argv[]) {
 		modifiedData = shl(modifiedData);
 		remainder = div(modifiedData, polynome);
 		i++;
-		cout << i << " shift: " << remainder << endl;
+		cout << i << " shift : " << remainder << endl;
 
 		if (remainder == zero) {
 
@@ -142,14 +143,6 @@ string shl(string data) {
 
 	data += data[0];
 	data.erase(0, 1);
-
-	return data;
-}
-
-string shlz(string data) {
-
-	while (data[0] == '0')
-		 data = shl(data);
 
 	return data;
 }
