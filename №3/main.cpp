@@ -38,18 +38,15 @@ int main(int argc, char* argv[]) {
 	int error = atoi(argv[2]);
 	string data = argv[1];
 	string remainder;
-	string zero = "";
 	string polynome;
 
 	int crcSize = ceil(log2(data.size() + 1 + ceil(log2(data.size() + 1))));
 
 	cout << "Data  : " << data << endl;
 
-	for (int i = 0; i < crcSize; i++) {
-		
+	for (int i = 0; i < crcSize; i++) 
 		data += '0';
-		zero += '0';
-	}
+
 
 	switch (crcSize){
 		case(5):
@@ -92,12 +89,6 @@ int main(int argc, char* argv[]) {
 		remainder = div(modifiedData, polynome);
 		i++;
 		cout << i << " shift : " << remainder << endl;
-
-		if (remainder == zero) {
-
-			cout << "No erorr" << endl;
-			return 0;
-		}
 	}
 
 	string tmp;
