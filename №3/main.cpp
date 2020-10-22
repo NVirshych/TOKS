@@ -3,35 +3,20 @@
 #include <string>
 #include <math.h>
 
+//crc-5
+//10010100100100101001001010
+
+//011010101010111010101010101001
+
 using namespace std;
 
 int count(string, char);
 
 string shl(string);
 string shr(string);
-
 string delz(string);
-
 string sxor(string, string);
 string div(string, string);
-
-	// poly = 1010101
-	// - 
-
-	// poly = 1000111
-	// -
-
-	// poly = 1100111
-	// -
-
-	// poly = 1000101
-	// - 
-
-	// poly = 1001101
-	// - 
-
-	// poly = 10001001
-	// -
 
 int main(int argc, char* argv[]) {
 
@@ -39,11 +24,18 @@ int main(int argc, char* argv[]) {
 	string data = argv[1];
 	string remainder;
 	string polynome;
+	string tmp;
+	string shifted;
 
-	int crcSize = ceil(log2(data.size() + 1 + ceil(log2(data.size() + 1))));
+	int i;
+	int shift;
 
 	cout << "Data  : " << data << endl;
 
+	//Checksum size
+	int crcSize = ceil(log2(data.size() + 1 + ceil(log2(data.size() + 1))));
+
+	// data = data * x^(crcSize)
 	for (int i = 0; i < crcSize; i++) 
 		data += '0';
 
@@ -54,7 +46,7 @@ int main(int argc, char* argv[]) {
 			break;
 
 		case(6):
-			polynome = "1001101";
+			polynome = "1110000";
 			break;
 
 		default:
@@ -62,10 +54,12 @@ int main(int argc, char* argv[]) {
 			return 0;
 	}
 
+	//Getting checksum
 	remainder = div(data, polynome);
 	data.erase(data.size() - crcSize, crcSize);
 	data += remainder;
 	   
+	//Data + error
 	string modifiedData = data;
 
 	if (modifiedData[error] == '0')
@@ -73,45 +67,58 @@ int main(int argc, char* argv[]) {
 	else
 		modifiedData[error] = '0';
 
-	cout << "Poly  : " << polynome << endl << "Sum   : " << remainder << endl << endl << "Start : " << data << endl << "Error : " << modifiedData << endl;
+	cout << "Poly  : " << polynome << endl;
+	cout << "Sum   : " << remainder << endl << endl;
+	cout << "Start : " << data << endl;
+	cout << "Error : " << modifiedData << endl;
 
-	for (int i = 0; i < error; i++)
+	for (i = 0; i < error; i++)
 		cout << " ";
-	cout << "        -" << endl;
+	cout << "        -" << endl << endl;
 
-	int i = -1;
+	//==========================================================================
 
+	i = -1;
 	modifiedData = shr(modifiedData);
 
-	while (count(remainder, '1') != 1) {
+	while (i < data.size() || i == -1) {
 
-		modifiedData = shl(modifiedData);
-		remainder = div(modifiedData, polynome);
-		i++;
-		cout << i << " shift : " << remainder << endl;
+		remainder.clear();
+
+		//Dividing + shifting to find remainder with one '1'
+		while (count(remainder, '1') != 1) {
+
+			modifiedData = shl(modifiedData);
+			remainder = div(modifiedData, polynome);
+			i++;
+			if (i > data.size())
+				return 0;
+			cout << i << " shift : " << remainder << endl;
+		}
+
+		shift = i;
+		shifted = modifiedData;
+
+		//Fixing error (doesn't work with CRC-6 for some reason)
+		tmp = modifiedData.substr(modifiedData.size() - remainder.size(), remainder.size());
+		modifiedData.erase(modifiedData.size() - remainder.size(), remainder.size());
+		tmp = sxor(tmp, remainder);
+		modifiedData += tmp;
+
+		//Shifting back
+		while (i) {
+
+			modifiedData = shr(modifiedData);
+			i--;
+		}
+
+		cout << "Start : " << data << endl;
+		cout << "Fix   : " << modifiedData << endl;
+		cout << "        " << sxor(data, modifiedData) << endl << endl;
+
+		i = shift;
+		modifiedData = shifted;
 	}
-
-	string tmp;
-
-	tmp = modifiedData.substr(modifiedData.size() - remainder.size(), remainder.size());
-	modifiedData.erase(modifiedData.size() - remainder.size(), remainder.size());
-
-	tmp = sxor(tmp, remainder);
-
-	modifiedData += tmp;
-
-	while (i) {
-
-		modifiedData = shr(modifiedData);
-		i--;
-	}
-
-
-	cout << endl << "Start : " <<  data << endl << "Fix   : " << modifiedData << endl;
-
-	for (int i = 0; i < error; i++)
-		cout << " ";
-	cout << "        -" << endl;
 	
 	return 0;
 }
