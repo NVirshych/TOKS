@@ -16,7 +16,7 @@ void collisionResolver() {
 	
 		while (chanel != COLLISION);
 		
-		Sleep(200);
+		Sleep(300);
 
 		chanel = ' ';	
 	}
@@ -69,8 +69,6 @@ void transmitter(string data) {
 
 		shift++;
 	}
-
-	chanel = '\0';
 }
 
 int main(int argc, char* argv[]) {
@@ -78,6 +76,7 @@ int main(int argc, char* argv[]) {
 	thread resolver(collisionResolver);
 	thread one(transmitter, "1234567891234567890");
 	thread two(transmitter, "qwertyuioasdfghjklasdfghjkl");
+	thread three(transmitter, "יצףךוםדרשחהכמנןאגûגקסלטעüבכדם");
 
 	while (1) {
 	
@@ -88,6 +87,7 @@ int main(int argc, char* argv[]) {
 
 	one.join();
 	two.join();
+	three.join();
 
 	return 0;
 }
