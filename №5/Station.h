@@ -21,5 +21,6 @@ public:
 	void sendPackage();
 	void receivePackage(Package);
 	void routine();
+	void deactivate();
 };
 

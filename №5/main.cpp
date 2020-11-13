@@ -23,7 +23,17 @@ int main(int argc, char* argv[]) {
 	thread b(threadFun, &two);
 	thread c(threadFun, &zero);
 
+	cout << "Press any button to start and finish" << endl;
+
+	_getch();
+
 	one.receivePackage(Package());
+
+	_getch();
+
+	zero.deactivate();
+	one.deactivate();
+	two.deactivate();
 
 	a.join();
 	b.join();

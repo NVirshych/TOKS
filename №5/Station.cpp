@@ -18,7 +18,7 @@ byte Station::generateDestination() {
 }
 
 byte Station::generateData() {
-	return byte( 'a' + rand() % 26 );
+	return byte( 'a' + (rand() % 26) );
 }
 
 void Station::sendPackage() {
@@ -42,17 +42,17 @@ void Station::routine() {
 			//received mark
 			if (package.getControl() == 1) {
 
-				cout << "Received mark" << endl;
+				cout << "Station " << (int)this->id << " received mark" << endl;
 				if (rand() % 2) {
 					//Skip
-					cout << "Passing Mark" << endl;
+					cout << "Station " << (int)this->id << " passing Mark" << endl;
 					sendPackage();
 					flag = 0;
 					continue;
 				}
 
 				//send message
-				cout << "Sending message" << endl;
+				cout << "Station " << (int)this->id <<  " sending message" << endl;
 				package = Package(generateDestination(), id, generateData());
 				sendPackage();
 				flag = 0;
@@ -65,39 +65,45 @@ void Station::routine() {
 				
 					if (package.getStatus() == 1) {
 						//successfull delivery
-						cout << "successfull delivery" << endl;
+						cout << "Station " << (int)this->id << " successfull delivery" << endl;
 						flag = 0;
 						package = Package();
-						cout << "Passing Mark" << endl;
+						cout << "Station " << (int)this->id << " passing Mark" << endl;
 						sendPackage();
 						continue;
 					}
 					else {
-						cout << "destination didn't change status" << endl;
+						cout << "Station " << (int)this->id << " destination didn't change status" << endl;
 					}
 				}
 				else {
-					cout << "wrong package" << endl;
+					cout << "Station " << (int)this->id << " wrong package" << endl;
 				}
 
 				//send mark further
 				package = Package();
-				cout << "Passing Mark" << endl;
+				cout << "Station " << (int)this->id << " passing Mark" << endl;
 				sendPackage();
 			}
 			else {
 
 				if (package.getDestination() == id) {
 					//received package
-					cout << "It's mine" << endl;
+					cout << "\tStation " << (int)this->id << " got message" << endl;
 					package.setStatus(1);
 				}
-				cout << "Passing message" << endl;
+				cout << "Station " << (int)this->id << " passing message" << endl;
 				sendPackage();
 			}
 			flag = 0;
 		}
 		Sleep(1000);
 	}
+}
+
+
+void Station::deactivate() {
+
+	this->active = 0;
 }
 
