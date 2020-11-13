@@ -9,7 +9,7 @@ char COLLISION = '-';
 
 char chanel = ' ';
 
-//Resolves collision after 200ms
+//Resolves collision after 300ms
 void collisionResolver() {
 
 	while (1) {
